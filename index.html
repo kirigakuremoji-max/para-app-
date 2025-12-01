@@ -1,10 +1,1536 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" >
 <head>
-  <title>Para App</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PARA App</title>
+  <style>
+    :root {
+      --sidebar-bg: #01162b;
+      --sidebar-text:#d2dbeb;
+      --sidebar-hover-bg:#00385a;
+      --sidebar-border: #6a90b4;
+      --main-bg: #d2dbeb;
+      --card-bg: #fff;
+      --primary-color: #10a37f;
+      --primary-hover: #0d7c66;
+      --danger-color: #ef4444;
+      --danger-hover: #b91c1c;
+      --success-color: #6dab8c;
+      --success-hover: #d2dbeb;
+      --warning-color: #eab308;
+      --warning-hover: #a16207;
+      --font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      --radius: 12px;
+      --transition: 0.3s ease;
+      --sidebar-width: 230px;
+    }
+
+    /* Reset */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-family);
+      background: var(--main-bg);
+      display: flex;
+      min-height: 100vh;
+      color: #242424;
+    }
+
+    /* Sidebar */
+    aside.sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      background-color: var(--sidebar-bg);
+      color: var(--sidebar-text);
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 0.5rem;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+      user-select: none;
+      overflow-y: auto;
+    }
+    .sidebar-header {
+      padding: 0 1rem;
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: white;
+      letter-spacing: 1.1px;
+    }
+
+    nav.sidebar-nav {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      overflow-y: auto;
+      padding: 0 0.4rem;
+    }
+
+    nav.sidebar-nav button {
+      background: transparent;
+      border: none;
+      color: var(--sidebar-text);
+      font-weight: 500;
+      font-size: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: background var(--transition), color var(--transition);
+      user-select: none;
+    }
+    nav.sidebar-nav button svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--sidebar-text);
+      flex-shrink: 0;
+    }
+    nav.sidebar-nav button:hover,
+    nav.sidebar-nav button:focus {
+      background-color: var(--sidebar-hover-bg);
+      color: #fff;
+      outline: none;
+    }
+    nav.sidebar-nav button.active {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 700;
+    }
+
+    /* Main content */
+    main.content {
+      margin-left: var(--sidebar-width);
+      flex-grow: 1;
+      padding: 1.5rem 2rem 3rem;
+      overflow-y: auto;
+      min-height: 100vh;
+    }
+
+    /* Section headers */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-weight: 700;
+      font-size: 1.7rem;
+      margin: 0;
+    }
+
+    button.new-item-btn {
+      background-color: var(--primary-color);
+      border: none;
+      color: white;
+      border-radius: var(--radius);
+      padding: 0.4rem 1rem;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color var(--transition);
+    }
+    button.new-item-btn:hover,
+    button.new-item-btn:focus {
+      background-color: var(--primary-hover);
+      outline: none;
+    }
+
+    /* Cards container */
+    .cards-grid {
+      display: grid;
+      gap: 1.2rem;
+      grid-template-columns: repeat(auto-fill,minmax(320px,1fr));
+    }
+
+    /* Card */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      box-shadow: 0 3px 7px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      position: relative;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      white-space: normal;
+    }
+
+    .card:hover {
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Card header */
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin: 0;
+      word-break: break-word;
+      flex: 1;
+    }
+
+    .priority-tag {
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: white;
+      padding: 0.18rem 0.55rem;
+      border-radius: 16px;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .priority-High {
+      background: #dc2626; /* red-600 */
+    }
+    .priority-Medium {
+      background: #d97706; /* amber-600 */
+    }
+    .priority-Low {
+      background: #2563eb; /* blue-600 */
+    }
+
+    /* Dates */
+    .dates {
+      font-size: 0.8rem;
+      color: #555;
+      font-weight: 600;
+      user-select: none;
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      background: #ddd;
+      border-radius: 999px;
+      height: 12px;
+      overflow: hidden;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--primary-color);
+      width: 0%;
+      transition: width 0.4s ease;
+      border-radius: 999px 0 0 999px;
+    }
+
+    /* Checklist */
+    ul.task-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    ul.task-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    ul.task-list li:hover {
+      background: #f1f5f9;
+      border-radius: var(--radius);
+    }
+
+    ul.task-list li input[type="checkbox"] {
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+    }
+    ul.task-list li span.label {
+      flex-grow: 1;
+      font-size: 0.95rem;
+      word-break: break-word;
+      user-select: text;
+    }
+    ul.task-list li.done span.label {
+      text-decoration: line-through;
+      color: #16a34a;
+      font-weight: 600;
+    }
+    ul.task-list li.inprogress span.label {
+      font-weight: 600;
+      color: #ca8a04;
+    }
+
+    /* Status circle */
+    .status-circle {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      margin-left: 0.4rem;
+      user-select: none;
+    }
+    .status-pending {
+      background: #aaa;
+    }
+    .status-inprogress {
+      background: var(--warning-color);
+    }
+    .status-done {
+      background: var(--success-color);
+    }
+
+    /* Areas specifics */
+    .area-description {
+      font-size: 0.9rem;
+      color: #444;
+      margin-bottom: 0.5rem;
+    }
+    .area-task-list {
+      max-height: 140px;
+      overflow-y: auto;
+      list-style: none;
+      padding: 0;
+      margin: 0 0 0.8rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .notes-textarea {
+      width: 100%;
+      min-height: 70px;
+      resize: vertical;
+      padding: 8px;
+      font-family: var(--font-family);
+      font-size: 0.9rem;
+      border-radius: var(--radius);
+      border: 1px solid #bbb;
+      transition: border-color 0.3s ease;
+    }
+    .notes-textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 4px var(--primary-color);
+    }
+
+    /* Status toggle */
+    .status-toggle {
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: var(--radius);
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
+      cursor: pointer;
+      user-select: none;
+      min-width: 80px;
+      text-align: center;
+      transition: background-color var(--transition), color var(--transition);
+      background-color: transparent;
+    }
+    .status-toggle.paused {
+      border-color: #bbb;
+      color: #777;
+    }
+    .status-toggle:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    .status-toggle.paused:hover {
+      background-color: #777;
+      color: white;
+    }
+
+    /* Resources */
+    .resource-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.5rem;
+    }
+    .resource-tag {
+      background-color: #d1e8e2;
+      color: #0e664b;
+      padding: 0.15rem 0.55rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .resource-summary {
+      font-size: 0.88rem;
+      color: #444;
+      margin-bottom: 0.6rem;
+      flex-grow: 1;
+      white-space: pre-wrap;
+    }
+    .resource-links {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      margin-bottom: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-weight: 600;
+      align-items: center;
+      user-select: none;
+    }
+    .filter-bar label {
+      font-size: 0.9rem;
+    }
+    .filter-bar select {
+      border-radius: var(--radius);
+      border: 1px solid #ccc;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.25rem 0.6rem;
+      background: white;
+      cursor: pointer;
+      user-select: none;
+      outline-offset: 2px;
+      transition: border-color 0.3s ease;
+    }
+    .filter-bar select:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 3px var(--primary-color);
+    }
+
+    /* Action buttons on cards */
+    .card-actions {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+    .action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #555;
+      font-size: 0.9rem;
+      padding: 0.3rem 0.5rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      transition: background-color 0.3s, color 0.3s;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .action-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+    .action-btn.archive-btn {
+      color: var(--warning-color);
+    }
+    .action-btn.archive-btn:hover, .action-btn.archive-btn:focus {
+      background-color: var(--warning-hover);
+      color: white;
+      outline: none;
+    }
+    .action-btn.delete-btn {
+      color: var(--danger-color);
+    }
+    .action-btn.delete-btn:hover, .action-btn.delete-btn:focus {
+      background-color: var(--danger-hover);
+      color: white;
+      outline: none;
+    }
+    .action-btn.unarchive-btn {
+      color: var(--primary-color);
+    }
+    .action-btn.unarchive-btn:hover, .action-btn.unarchive-btn:focus {
+      background-color: var(--primary-hover);
+      color: white;
+      outline: none;
+    }
+
+    /* Modal styles */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      overflow: auto;
+      padding: 1rem;
+    }
+    .modal.open {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      max-width: 480px;
+      width: 100%;
+      border-radius: var(--radius);
+      padding: 1.5rem 1.8rem 2rem;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      color: #222;
+      font-family: var(--font-family);
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+      font-size: 1.4rem;
+      margin-bottom: 1.2rem;
+    }
+    .modal-content label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: 600;
+    }
+    .modal-content input[type="text"],
+    .modal-content textarea,
+    .modal-content select,
+    .modal-content input[type="date"] {
+      width: 100%;
+      padding: 0.5rem 0.6rem;
+      border-radius: var(--radius);
+      border: 1px solid #aaa;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      user-select: text;
+      font-family: var(--font-family);
+      transition: border-color 0.3s ease;
+    }
+    .modal-content input[type="text"]:focus,
+    .modal-content textarea:focus,
+    .modal-content select:focus,
+    .modal-content input[type="date"]:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 6px var(--primary-color);
+    }
+    .modal-content textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .modal-actions {
+      text-align: right;
+      margin-top: 0.2rem;
+    }
+
+    .modal-actions button {
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem 1.1rem;
+      user-select: none;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      margin-left: 0.8rem;
+    }
+    .modal-save-btn {
+      background-color: var(--success-color);
+      color: white;
+    }
+    .modal-save-btn:hover, .modal-save-btn:focus {
+      background-color: var(--success-hover);
+      outline: none;
+    }
+    .modal-cancel-btn {
+      background-color: #ddd;
+      color: #444;
+    }
+    .modal-cancel-btn:hover, .modal-cancel-btn:focus {
+      background-color: #bbb;
+      outline: none;
+    }
+
+    /* Responsive */
+    @media(max-width: 640px){
+      .cards-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      main.content {
+        margin-left: 70px;
+        padding: 1rem 1rem 3rem;
+      }
+      aside.sidebar {
+        width: 70px;
+        padding: 1rem 0.2rem;
+      }
+      nav.sidebar-nav button {
+        justify-content: center;
+        padding: 0.75rem 0;
+        font-size: 0;
+      }
+      nav.sidebar-nav button span.label {
+        display: none;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Welcome to Para App!</h1>
-  <p>This is a test page hosted on GitHub Pages.</p>
+
+  <aside class="sidebar" role="complementary" aria-label="Primary sidebar navigation">
+    <div class="sidebar-header" tabindex="0">PARA</div>
+    <nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
+      <button id="nav-proj" class="active" aria-current="page" tabindex="0" aria-label="Projects">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zm0-10v2h14V7H7z"></path></svg>
+        <span class="label">Projects</span>
+      </button>
+      <button id="nav-area" aria-label="Areas" tabindex="0">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"></path></svg>
+        <span class="label">Areas</span>
+      </button>
+      <button id="nav-res" aria-label="Resources" tabindex="0">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19,3H5C3.895,3,3,3.895,3,5v14c0,1.105,0.895,2,2,2h14c1.105,0,2-0.895,2-2V5C21,3.895,20.105,3,19,3z M19,19H5V5h14V19z"></path></svg>
+        <span class="label">Resources</span>
+      </button>
+      <button id="nav-arch" aria-label="Archives" tabindex="0">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.54,5.23L19.31,4l-7.88,7.88l-3.59-3.59L6,8.46l4.76,4.76L20.54,5.23z M19,20H5v-2h14V20z"></path></svg>
+        <span class="label">Archives</span>
+      </button>
+    </nav>
+  </aside>
+
+  <main class="content" tabindex="0">
+    <!-- PROJECTS SECTION -->
+    <section id="projects-section" aria-label="Projects" tabindex="-1" style="display: block;">
+      <div class="section-header">
+        <h1 class="section-title">Projects</h1>
+        <button class="new-item-btn" id="btnAddProject" aria-label="Add new Project">➕ New</button>
+      </div>
+
+      <div class="filter-bar" aria-label="Project filters and sorting">
+        <label for="proj-filter">Status:</label>
+        <select id="proj-filter" aria-controls="projects-grid" aria-label="Filter projects by status">
+          <option value="all" selected>All</option>
+          <option value="pending">Pending</option>
+          <option value="inprogress">In Progress</option>
+          <option value="done">Done</option>
+        </select>
+
+        <label for="proj-sort">Sort by:</label>
+        <select id="proj-sort" aria-controls="projects-grid" aria-label="Sort projects">
+          <option value="dueAsc" selected>Due Date ↑</option>
+          <option value="dueDesc">Due Date ↓</option>
+          <option value="priority">Priority</option>
+          <option value="progress">Progress</option>
+        </select>
+      </div>
+
+      <div id="projects-grid" class="cards-grid" aria-live="polite" aria-relevant="additions removals"></div>
+    </section>
+
+    <!-- AREAS SECTION -->
+    <section id="areas-section" aria-label="Areas" tabindex="-1" hidden>
+      <div class="section-header">
+        <h1 class="section-title">Areas</h1>
+        <button class="new-item-btn" id="btnAddArea" aria-label="Add new Area">➕ New</button>
+      </div>
+      <div id="areas-grid" class="cards-grid" aria-live="polite" aria-relevant="additions removals"></div>
+    </section>
+
+    <!-- RESOURCES SECTION -->
+    <section id="resources-section" aria-label="Resources" tabindex="-1" hidden>
+      <div class="section-header">
+        <h1 class="section-title">Resources</h1>
+        <button class="new-item-btn" id="btnAddResource" aria-label="Add new Resource">➕ New</button>
+      </div>
+      <input
+        type="search"
+        id="resource-search"
+        aria-label="Search resources"
+        placeholder="Search Resources..."
+        style="padding:0.5rem 0.7rem; width: 100%; max-width: 500px; margin-bottom: 1rem; border-radius: var(--radius); border: 1px solid #ccc;"
+      />
+      <div id="resources-grid" class="cards-grid" aria-live="polite" aria-relevant="additions removals"></div>
+    </section>
+
+    <!-- ARCHIVES SECTION -->
+    <section id="archives-section" aria-label="Archives" tabindex="-1" hidden>
+      <div class="section-header">
+        <h1 class="section-title">Archives</h1>
+      </div>
+      <div id="archives-content" tabindex="0" aria-live="polite" aria-relevant="additions removals"></div>
+    </section>
+  </main>
+
+  <!-- MODAL -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc" tabindex="-1">
+    <div class="modal-content" role="document">
+      <h3 id="modal-title">Add New Item</h3>
+      <form id="modal-form" novalidate>
+        <!-- form fields injected here -->
+      </form>
+      <div class="modal-actions" style="margin-top:1rem;">
+        <button type="submit" form="modal-form" class="modal-save-btn" aria-label="Save new item">Save</button>
+        <button type="button" class="modal-cancel-btn" aria-label="Cancel creating new item" id="btnModalCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* --- Data Persistence Functions (Load/Save to LocalStorage) --- */
+  const STORAGE_KEY = 'paraDashboardData';
+
+  /**
+   * Loads the application data from localStorage.
+   * If not found or if parsing fails, returns the default data structure.
+   */
+  function loadDataFromLocalStorage() {
+    const defaultData = {
+      projects: [
+        {
+          id: 'p1',
+          title: 'Redesign Website',
+          description: 'Refresh the company website with new branding.',
+          startDate: '2025-09-01',
+          dueDate: '2025-10-15',
+          priority: 'High',
+          tasks: [
+            { id: 'p1t1', label: 'Gather requirements', status: 'done' },
+            { id: 'p1t2', label: 'Create wireframes', status: 'inprogress' },
+            { id: 'p1t3', label: 'Develop frontend', status: 'pending' },
+            { id: 'p1t4', label: 'Testing and feedback', status: 'pending' },
+          ]
+        },
+        {
+          id: 'p2',
+          title: 'Quarterly Sales Presentation',
+          description: 'Prepare slides and report for Q3 sales.',
+          startDate: '2025-09-10',
+          dueDate: '2025-09-30',
+          priority: 'Medium',
+          tasks: [
+            { id: 'p2t1', label: 'Compile sales data', status: 'done' },
+            { id: 'p2t2', label: 'Design slides', status: 'inprogress' },
+            { id: 'p2t3', label: 'Rehearse presentation', status: 'pending' },
+          ]
+        },
+        {
+          id: 'p3',
+          title: 'Launch New Product',
+          description: 'Coordinate launch activities for March release.',
+          startDate: '2025-08-20',
+          dueDate: '2025-11-01',
+          priority: 'Low',
+          tasks: [
+            { id: 'p3t1', label: 'Finalize product specs', status: 'done' },
+            { id: 'p3t2', label: 'Prepare marketing materials', status: 'pending' },
+          ]
+        }
+      ],
+      areas: [
+        {
+          id: 'a1',
+          title: 'Health',
+          description: 'Keep track of fitness and wellness habits.',
+          tasks: [
+            { id: 'a1t1', label: 'Morning Yoga', done: false},
+            { id: 'a1t2', label: 'Drink 2L water', done: true},
+            { id: 'a1t3', label: 'Sleep 7+ hours', done: false},
+          ],
+          notes: 'Focus on consistent sleep schedule and hydration.',
+          status: 'active'
+        },
+        {
+          id: 'a2',
+          title: 'Career',
+          description: 'Maintain professional growth and networking.',
+          tasks: [
+            { id: 'a2t1', label: 'Update LinkedIn weekly', done: true},
+            { id: 'a2t2', label: 'Learn new skill monthly', done: false},
+          ],
+          notes: '',
+          status: 'paused'
+        }
+      ],
+      resources: [
+        {
+          id: 'r1',
+          title: 'Marketing Trends 2025',
+          tags: ['Article', 'PDF'],
+          summary: 'Insightful article about marketing trends for the next year.',
+          linkedTo: ['p1', 'a2'],
+        },
+        {
+          id: 'r2',
+          title: 'Intro to Yoga Video',
+          tags: ['Video'],
+          summary: 'Beginner-friendly yoga session videos.',
+          linkedTo: ['a1']
+        },
+        {
+          id: 'r3',
+          title: 'Project Management Cheatsheet',
+          tags: ['PDF', 'Resource'],
+          summary: 'Quick reference guide for project managers.',
+          linkedTo: ['p2', 'p3']
+        }
+      ],
+      archives: {
+        projects: [],
+        areas: [],
+        resources: []
+      }
+    };
+    try {
+      const storedData = localStorage.getItem(STORAGE_KEY);
+      if (storedData) {
+        // Merge stored data with default to ensure all keys exist in case of old data structure
+        return {...defaultData, ...JSON.parse(storedData)};
+      }
+    } catch (e) {
+      console.error("Could not load data from localStorage", e);
+      // Fallback to default data if loading fails
+    }
+    return defaultData;
+  }
+
+  /**
+   * Saves the current application data state to localStorage.
+   */
+  function saveDataToLocalStorage() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      // console.log('Data saved successfully.'); // Uncomment for debugging
+    } catch (e) {
+      console.error("Could not save data to localStorage", e);
+    }
+  }
+  /* --- End Data Persistence Functions --- */
+
+
+  /* Data store */
+  // Initialize data by loading from storage, or using default if absent/error
+  const data = loadDataFromLocalStorage();
+
+
+  /* Helpers */
+
+  function el(type, attrs = {}, ...children) {
+    const element = document.createElement(type);
+    if (attrs) {
+      for (const attr in attrs) {
+        if (attr === 'class') element.className = attrs[attr];
+        else if (attr === 'style') element.style.cssText = attrs[attr];
+        else if (attr === 'dataset') {
+          for (const key in attrs[attr]) element.dataset[key] = attrs[attr][key];
+        }
+        else if (/^(aria|role|for|type|id|name|value|disabled|checked|tabindex|required)$/i.test(attr)) {
+          if(attrs[attr] === false) element.removeAttribute(attr);
+          else element.setAttribute(attr, attrs[attr]);
+        }
+        else element[attr] = attrs[attr];
+      }
+    }
+    children.flat().forEach(child => {
+      if (child == null) return;
+      if (child instanceof Node) element.appendChild(child);
+      else element.appendChild(document.createTextNode(child));
+    });
+    return element;
+  }
+
+  // Gen random ID
+  function genId(prefix='id') {
+    return prefix + Math.random().toString(36).slice(2,9);
+  }
+
+  // Format date yyy-mm-dd
+  function formatDate(d) {
+    if (!d) return '-';
+    const dateObj = new Date(d);
+    if (isNaN(dateObj)) return '-';
+    return dateObj.toLocaleDateString(undefined, {year:'numeric', month:'short', day:'numeric'});
+  }
+
+  // Calculate project progress %
+  function calcProgress(tasks) {
+    if (!tasks || tasks.length === 0) return 0;
+    const doneCount = tasks.filter(t => t.status === 'done').length;
+    return Math.round(doneCount / tasks.length * 100);
+  }
+
+  // Get project overall status
+  function getProjectStatus(tasks) {
+    if (tasks.every(t => t.status === 'done')) return 'done';
+    if (tasks.some(t => t.status === 'inprogress')) return 'inprogress';
+    return 'pending';
+  }
+
+  // Capitalize first letter
+  function capitalize(s) {
+    if (!s) return '';
+    return s[0].toUpperCase() + s.slice(1);
+  }
+
+ // ---- NEW: MAKE LINKS CLICKABLE ----
+  function makeLinksClickable(text) {
+    if (!text) return '';
+    const urlPattern = /((https?:\/\/)[^\s<]+)/g;
+    return text.replace(urlPattern, function(url) {
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+    });
+  }
+
+  /* NAVIGATION */
+
+  const navButtons = {
+    projects: document.getElementById('nav-proj'),
+    areas: document.getElementById('nav-area'),
+    resources: document.getElementById('nav-res'),
+    archives: document.getElementById('nav-arch')
+  };
+
+  const sections = {
+    projects: document.getElementById('projects-section'),
+    areas: document.getElementById('areas-section'),
+    resources: document.getElementById('resources-section'),
+    archives: document.getElementById('archives-section')
+  };
+
+  function switchSection(sectionKey) {
+    Object.entries(sections).forEach(([key, sec]) => {
+      if (key === sectionKey) {
+        sec.style.display = 'block';
+        sec.focus();
+        navButtons[key].classList.add('active');
+        navButtons[key].setAttribute('aria-current', 'page');
+      } else {
+        sec.style.display = 'none';
+        navButtons[key].classList.remove('active');
+        navButtons[key].removeAttribute('aria-current');
+      }
+    });
+  }
+
+  Object.entries(navButtons).forEach(([key, btn]) => {
+    btn.addEventListener('click', () => switchSection(key));
+  });
+
+  /* PROJECTS PAGE */
+
+  const projectsGrid = document.getElementById('projects-grid');
+  const projFilter = document.getElementById('proj-filter');
+  const projSort = document.getElementById('proj-sort');
+
+  function cycleTaskStatus(task) {
+    if (task.status === 'pending') task.status = 'inprogress';
+    else if (task.status === 'inprogress') task.status = 'done';
+    else task.status = 'pending';
+    saveDataToLocalStorage(); 
+  }
+
+  function renderProjects() {
+    let filtered = data.projects.filter(project => {
+      if(projFilter.value === 'all') return true;
+      return getProjectStatus(project.tasks) === projFilter.value;
+    });
+
+    switch(projSort.value) {
+      case 'dueAsc':
+        filtered.sort((a,b) => new Date(a.dueDate) - new Date(b.dueDate));
+        break;
+      case 'dueDesc':
+        filtered.sort((a,b) => new Date(b.dueDate) - new Date(a.dueDate));
+        break;
+      case 'priority':
+        const order = {'High': 1, 'Medium': 2, 'Low': 3};
+        filtered.sort((a,b) => order[a.priority] - order[b.priority]);
+        break;
+      case 'progress':
+        filtered.sort((a,b) => calcProgress(b.tasks) - calcProgress(a.tasks));
+        break;
+    }
+
+    projectsGrid.innerHTML = '';
+    if (filtered.length === 0) {
+      projectsGrid.appendChild(el('p', {}, 'No projects to display.'));
+      return;
+    }
+
+    filtered.forEach(project=>{
+      const progress = calcProgress(project.tasks);
+      const card = el('article', {class: 'card', tabIndex: 0, 'aria-label': `Project: ${project.title}`});
+      const header = el('div', {class: 'card-header'});
+      const titleEl = el('h3', {class: 'card-title'}, project.title);
+      const prioTag = el('span', {class: `priority-tag priority-${project.priority}`, 'aria-label': `Priority: ${project.priority}`}, project.priority);
+      header.append(titleEl, prioTag);
+      const dates = el('div', {class: 'dates'}, `Start: ${formatDate(project.startDate)} | Due: ${formatDate(project.dueDate)}`);
+      const progressBar = el('div', {class: 'progress-bar', 'aria-label': 'Project progress'});
+      const progressFill = el('div', {class: 'progress-fill', style: `width:${progress}%;`});
+      progressBar.appendChild(progressFill);
+      const tasksList = el('ul', {class: 'task-list', 'aria-label': 'Project tasks'});
+      project.tasks.forEach(task=>{
+        const li = el('li', {class: `task-item ${task.status}`, role: 'listitem'});
+        const checkbox = el('input', {type:'checkbox', checked: task.status==='done', 'aria-checked': task.status==='done'});
+        const label = el('span', {class: 'label'}, task.label);
+        const statusCircle = el('span', {class: `status-circle status-${task.status}`, title: task.status[0].toUpperCase() + task.status.slice(1), 'aria-hidden': 'true'});
+        li.append(checkbox, label, statusCircle);
+        li.addEventListener('click', e => {
+          if(e.target.tagName==='INPUT') return;
+          cycleTaskStatus(task);
+          renderProjects();
+        });
+        checkbox.addEventListener('change', (e) => {
+          task.status = checkbox.checked ? 'done' : 'pending';
+          saveDataToLocalStorage(); 
+          renderProjects();
+        });
+        tasksList.appendChild(li);
+      });
+
+      const actions = el('div', {class: 'card-actions'});
+      const archiveBtn = el('button', {class: 'action-btn archive-btn', 'aria-label': `Archive project ${project.title}`, title: 'Archive'}, [
+        el('svg', {viewBox:'0 0 24 24', 'aria-hidden':'true', focusable:'false'}, 
+          el('path', {d:'M4 4h16v2H4zM6 6v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6H6zm3 3h2v5H9zm4 0h2v5h-2z'})
+        ),
+        'Archive'
+      ]);
+      archiveBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        archiveProject(project.id);
+      });
+      const deleteBtn = el('button', {class: 'action-btn delete-btn', 'aria-label': `Delete project ${project.title}`, title: 'Delete'}, [
+        el('svg', {viewBox:'0 0 24 24', 'aria-hidden':'true', focusable:'false'},
+          el('path', {d:'M3 6h18M9 6v12m6-12v12M10 11l4 4M14 11l-4 4'})
+        ),
+        'Delete'
+      ]);
+      deleteBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        deleteProject(project.id);
+      });
+      actions.append(archiveBtn, deleteBtn);
+      card.append(header, dates, progressBar, tasksList, actions);
+      projectsGrid.appendChild(card);
+    });
+  }
+
+  /* AREAS PAGE */
+
+ const areasGrid = document.getElementById('areas-grid');
+
+  function renderAreas() {
+    areasGrid.innerHTML = '';
+    if (data.areas.length === 0) {
+      areasGrid.appendChild(el('p', {}, 'No areas to display.'));
+      return;
+    }
+    data.areas.forEach(area => {
+      const card = el('article', {class: 'card', tabIndex: 0, 'aria-label': `Area: ${area.title}`});
+      const header = el('div', {class: 'card-header'});
+      const titleEl = el('h3', {class: 'card-title'}, area.title);
+      const statusToggle = el('button', {
+        class: `status-toggle ${area.status==='paused' ? 'paused' : ''}`,
+        'aria-pressed': area.status === 'active',
+        'aria-label': `Toggle status of area ${area.title}`,
+        type: 'button',
+        tabIndex: 0,
+      }, capitalize(area.status));
+      statusToggle.addEventListener('click', e=>{
+        area.status = area.status === 'active' ? 'paused' : 'active';
+        statusToggle.textContent = capitalize(area.status);
+        statusToggle.classList.toggle('paused', area.status === 'paused');
+        statusToggle.setAttribute('aria-pressed', area.status === 'active');
+        saveDataToLocalStorage(); 
+      });
+      header.append(titleEl, statusToggle);
+      const desc = el('p', {class: 'area-description'}, area.description);
+      const checklist = el('ul', {class: 'area-task-list', 'aria-label': `${area.title} checklist`});
+      area.tasks.forEach(task => {
+        const li = el('li');
+        const checkbox = el('input', {type:'checkbox', id:`${area.id}-${task.id}`, checked: task.done});
+        checkbox.addEventListener('change', () => {
+          task.done = checkbox.checked;
+          saveDataToLocalStorage(); 
+        });
+        const label = el('label', {for:`${area.id}-${task.id}`, class:'label'}, task.label);
+        li.append(checkbox, label);
+        checklist.appendChild(li);
+      });
+      // --- NOTES HANDLING:
+      const notesShow = el('div', {class:'resource-summary', style:'font-size:0.9em; margin-bottom:.4em; color:#333;'});
+      notesShow.innerHTML = makeLinksClickable(area.notes);
+      const notes = el('textarea', {
+        class: 'notes-textarea',
+        placeholder: `Notes for ${area.title}`,
+        rows: 3,
+        'aria-label': `Notes for ${area.title}`
+      }, area.notes);
+      notes.addEventListener('input', () => {
+        area.notes = notes.value;
+        saveDataToLocalStorage(); 
+        notesShow.innerHTML = makeLinksClickable(notes.value);
+      });
+      const actions = el('div', {class: 'card-actions'});
+      const archiveBtn = el('button', {class: 'action-btn archive-btn', 'aria-label': `Archive area ${area.title}`, title: 'Archive'}, [
+        el('svg', {viewBox:'0 0 24 24', 'aria-hidden':'true', focusable:'false'},
+          el('path', {d:'M4 4h16v2H4zM6 6v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6H6zm3 3h2v5H9zm4 0h2v5h-2z'})
+        ),
+        'Archive'
+      ]);
+      archiveBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        archiveArea(area.id);
+      });
+      const deleteBtn = el('button', {class: 'action-btn delete-btn', 'aria-label': `Delete area ${area.title}`, title: 'Delete'}, [
+        el('svg', {viewBox:'0 0 24 24', 'aria-hidden':'true', focusable:'false'},
+          el('path', {d:'M3 6h18M9 6v12m6-12v12M10 11l4 4M14 11l-4 4'})
+        ),
+        'Delete'
+      ]);
+      deleteBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        deleteArea(area.id);
+      });
+      actions.append(archiveBtn, deleteBtn);
+      // add new notesShow display as well
+      card.append(header, desc, checklist, notesShow, notes, actions);
+      areasGrid.appendChild(card);
+    });
+  }
+
+  /* RESOURCES PAGE */
+
+  const resourcesGrid = document.getElementById('resources-grid');
+  const resourceSearch = document.getElementById('resource-search');
+
+  function renderResources() {
+    let list = data.resources;
+    const query = resourceSearch.value.trim().toLowerCase();
+    if (query.length > 0) {
+      list = list.filter(r => 
+        r.title.toLowerCase().includes(query) ||
+        (r.summary && r.summary.toLowerCase().includes(query)) ||
+        r.tags.some(t => t.toLowerCase().includes(query))
+      );
+    }
+    resourcesGrid.innerHTML = '';
+    if (list.length === 0) {
+      resourcesGrid.appendChild(el('p', {}, 'No resources found.'));
+      return;
+    }
+    list.forEach(resource => {
+      const card = el('article', {class: 'card', tabIndex: 0, 'aria-label': `Resource: ${resource.title}`});
+      const header = el('div', {class:'card-header'});
+      const titleEl = el('h3', {class:'card-title'}, resource.title);
+      header.appendChild(titleEl);
+      const tagsEl = el('div', {class: 'resource-tags', 'aria-label': `Tags for resource ${resource.title}`});
+      resource.tags.forEach(tag => {
+        tagsEl.appendChild(el('span', {class:'resource-tag'}, tag));
+      });
+     const summary = el('p', {class:'resource-summary'});
+      summary.innerHTML = makeLinksClickable(resource.summary);
+      let linked = '';
+      if(resource.linkedTo && resource.linkedTo.length>0){
+        const names = resource.linkedTo.map(id=>{
+          if(id.startsWith('p')) return data.projects.find(p=>p.id===id)?.title||'Project';
+          if(id.startsWith('a')) return data.areas.find(a=>a.id===id)?.title||'Area';
+          return 'Item';
+        });
+        linked = el('p', {class:'resource-links'}, 'Linked to: ', ...names.map((n,i)=>[el('span', {class:'resource-tag'}, n), i < names.length-1 ? ', ' : '']));
+      }
+      const actions = el('div', {class: 'card-actions'});
+      const archiveBtn = el('button', {class: 'action-btn archive-btn', 'aria-label': `Archive resource ${resource.title}`, title: 'Archive'}, [
+        el('svg', {viewBox:'0 0 24 24', 'aria-hidden':'true', focusable:'false'}, 
+          el('path', {d:'M4 4h16v2H4zM6 6v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6H6zm3 3h2v5H9zm4 0h2v5h-2z'})
+        ),
+        'Archive'
+      ]);
+      archiveBtn.addEventListener('click', e => { e.stopPropagation(); archiveResource(resource.id); });
+      const deleteBtn = el('button', {class: 'action-btn delete-btn', 'aria-label': `Delete resource ${resource.title}`, title: 'Delete'}, [
+        el('svg', {viewBox:'0 0 24 24', 'aria-hidden':'true', focusable:'false'},
+          el('path', {d:'M3 6h18M9 6v12m6-12v12M10 11l4 4M14 11l-4 4'})
+        ),
+        'Delete'
+      ]);
+      deleteBtn.addEventListener('click', e => { e.stopPropagation(); deleteResource(resource.id); });
+      actions.append(archiveBtn, deleteBtn);
+      card.append(header, tagsEl, summary);
+      if(linked) card.append(linked);
+      card.append(actions);
+      resourcesGrid.appendChild(card);
+    });
+  }
+
+resourceSearch.addEventListener('input', () => renderResources());
+
+  /* ARCHIVES PAGE */
+
+  const archivesContent = document.getElementById('archives-content');
+
+  function renderArchives() {
+    archivesContent.innerHTML = '';
+
+    function renderItemSection(label, type, items, dateLabel) {
+      const section = el('section', {style:'margin-bottom:1.5rem;'});
+      const heading = el('h2', {style:'font-size:1.2rem; margin-bottom:0.6rem;'}, label);
+      section.appendChild(heading);
+
+      if(items.length === 0) {
+        section.appendChild(el('p', {style:'color:#777;'}, `No archived ${label.toLowerCase()}.`));
+        return section;
+      }
+
+      items.forEach(item => {
+        const itemDiv = el('div', {style:'display:flex; justify-content:space-between; align-items:center; padding:0.3rem 0; border-bottom:1px solid #ddd;'});
+        const titleSpan = el('div', {style: 'display:flex; flex-direction: column;'}, 
+          el('span', {style:'font-weight:600;'}, item.title),
+          el('small', {style:'color:#555; font-weight:400; margin-top:2px;'}, `${dateLabel}: ${formatDate(item.completedDate || item.archivedDate)}`)
+        );
+
+        const actionBtns = el('div', {style:'display:flex; gap:0.4rem; flex-wrap: wrap;'});
+
+        const unarchiveBtn = el('button', {class: 'action-btn unarchive-btn', 'aria-label': `Unarchive ${type} ${item.title}`, title: 'Unarchive'}, [
+          el('svg', {viewBox:'0 0 24 24', 'aria-hidden':'true', focusable:'false'},
+            el('path', {d:'M12 5v14m7-7H5'})
+          ),
+          'Unarchive'
+        ]);
+
+        unarchiveBtn.addEventListener('click', e => {
+          e.preventDefault();
+          unarchiveItem(type, item.id);
+        });
+
+        const deleteBtn = el('button', {class: 'action-btn delete-btn', 'aria-label': `Delete archived ${type} ${item.title}`, title: 'Delete'}, [
+          el('svg', {viewBox:'0 0 24 24', 'aria-hidden':'true', focusable:'false'},
+            el('path', {d:'M3 6h18M9 6v12m6-12v12M10 11l4 4M14 11l-4 4'})
+          ),
+          'Delete'
+        ]);
+        deleteBtn.addEventListener('click', e => {
+          e.preventDefault();
+          deleteArchivedItem(type, item.id);
+        });
+
+        actionBtns.append(unarchiveBtn, deleteBtn);
+        itemDiv.append(titleSpan, actionBtns);
+        section.appendChild(itemDiv);
+      });
+
+      return section;
+    }
+
+    archivesContent.appendChild(renderItemSection('Projects', 'projects', data.archives.projects, 'Completed'));
+    archivesContent.appendChild(renderItemSection('Areas', 'areas', data.archives.areas, 'Completed'));
+    archivesContent.appendChild(renderItemSection('Resources', 'resources', data.archives.resources, 'Archived'));
+  }
+
+  /* ACTIONS: ARCHIVE / UNARCHIVE / DELETE */
+
+  function archiveProject(id) {
+    const index = data.projects.findIndex(p => p.id === id);
+    if(index === -1) return;
+    const [proj] = data.projects.splice(index,1);
+    data.archives.projects.push({...proj, completedDate: new Date().toISOString().slice(0,10)});
+    saveDataToLocalStorage(); 
+    renderProjects();
+    renderArchives();
+  }
+
+  function deleteProject(id) {
+    if(!confirm('Delete this project permanently?')) return;
+    const index = data.projects.findIndex(p => p.id === id);
+    if(index === -1) return;
+    data.projects.splice(index,1);
+    saveDataToLocalStorage(); 
+    renderProjects();
+  }
+
+  function archiveArea(id) {
+    const index = data.areas.findIndex(a => a.id === id);
+    if(index === -1) return;
+    const [area] = data.areas.splice(index,1);
+    data.archives.areas.push({...area, completedDate: new Date().toISOString().slice(0,10)});
+    saveDataToLocalStorage(); 
+    renderAreas();
+    renderArchives();
+  }
+
+  function deleteArea(id) {
+    if(!confirm('Delete this area permanently?')) return;
+    const index = data.areas.findIndex(a => a.id === id);
+    if(index === -1) return;
+    data.areas.splice(index,1);
+    saveDataToLocalStorage(); 
+    renderAreas();
+  }
+
+  function archiveResource(id) {
+    const index = data.resources.findIndex(r => r.id === id);
+    if(index === -1) return;
+    const [res] = data.resources.splice(index,1);
+    data.archives.resources.push({...res, archivedDate: new Date().toISOString().slice(0,10)});
+    saveDataToLocalStorage(); 
+    renderResources();
+    renderArchives();
+  }
+
+  function deleteResource(id) {
+    if(!confirm('Delete this resource permanently?')) return;
+    const index = data.resources.findIndex(r => r.id === id);
+    if(index === -1) return;
+    data.resources.splice(index,1);
+    saveDataToLocalStorage(); 
+    renderResources();
+  }
+
+  // Unarchive: move item back to original list and remove from archives
+  function unarchiveItem(type, id) {
+    let idx = data.archives[type].findIndex(i=>i.id === id);
+    if(idx === -1) return;
+    const [item] = data.archives[type].splice(idx,1);
+    if(type === 'projects') {
+      data.projects.push(item);
+      renderProjects();
+      switchSection('projects');
+    } else if(type === 'areas') {
+      data.areas.push(item);
+      renderAreas();
+      switchSection('areas');
+    } else if(type === 'resources') {
+      data.resources.push(item);
+      renderResources();
+      switchSection('resources');
+    }
+    saveDataToLocalStorage(); 
+    renderArchives();
+  }
+
+  // Delete archived item
+  function deleteArchivedItem(type, id) {
+    if(!confirm('Delete this archived item permanently?')) return;
+    const idx = data.archives[type].findIndex(i=>i.id===id);
+    if(idx === -1) return;
+    data.archives[type].splice(idx,1);
+    saveDataToLocalStorage(); 
+    renderArchives();
+  }
+
+
+  /* MODAL LOGIC */
+
+  const modal = document.getElementById('modal');
+  const modalTitle = document.getElementById('modal-title');
+  const modalForm = document.getElementById('modal-form');
+  const btnModalCancel = document.getElementById('btnModalCancel');
+
+  let modalContext = ''; // 'projects', 'areas', 'resources'
+
+  function clearModal() {
+    modalForm.innerHTML = '';
+    modalTitle.textContent = 'Add New Item';
+  }
+
+  // Utility: create labeled input or select or textarea
+  function createInput({labelText, id, type='text', required=false, options=null, rows=3}) {
+    const container = el('div');
+    const label = el('label', {for: id}, labelText);
+    let input;
+    if(type === 'textarea') {
+      input = el('textarea', {id, name: id, rows, required});
+    } else if (type === 'select') {
+      input = el('select', {id, name: id, required});
+      if(options) {
+        options.forEach(opt=> {
+          const optEl = el('option', {value: opt.value}, opt.label);
+          input.appendChild(optEl);
+        });
+      }
+    } else {
+      input = el('input', {type, id, name: id, required});
+    }
+    container.append(label, input);
+    return container;
+  }
+
+  function openModalFor(sectionKey) {
+    modalContext = sectionKey;
+    clearModal();
+    switch(sectionKey) {
+      case 'projects': {
+        modalTitle.textContent = 'Add New Project';
+        modalForm.append(
+          createInput({labelText: 'Title *', id:'title', required:true}),
+          createInput({labelText: 'Description', id:'description', type:'textarea', rows:4}),
+          createInput({labelText: 'Start Date', id:'startDate', type:'date'}),
+          createInput({labelText: 'Due Date', id:'dueDate', type:'date'}),
+          createInput({labelText: 'Priority', id:'priority', type:'select', required:true, options:[
+            {value:'High',label:'High'},
+            {value:'Medium',label:'Medium'},
+            {value:'Low',label:'Low'}
+          ]}),
+          createInput({labelText: 'Tasks (one per line)', id:'tasks', type:'textarea', rows:5}),
+        );
+        break;
+      }
+      case 'areas': {
+        modalTitle.textContent = 'Add New Area';
+        modalForm.append(
+          createInput({labelText:'Title *', id:'title', required:true}),
+          createInput({labelText:'Description', id:'description', type:'textarea', rows:4}),
+          createInput({labelText:'Tasks (one per line)', id:'tasks', type:'textarea', rows:5}),
+          createInput({labelText:'Notes', id:'notes', type:'textarea', rows:4}),
+          createInput({labelText:'Status', id:'status', type:'select', required:true, options:[
+            {value:'active', label:'Active'},
+            {value:'paused', label:'Paused'},
+          ]}),
+        );
+        break;
+      }
+      case 'resources': {
+        modalTitle.textContent = 'Add New Resource';
+        const linkedOptions = [];
+        data.projects.forEach(p => linkedOptions.push({value:p.id, label:`Project: ${p.title}`}));
+        data.areas.forEach(a => linkedOptions.push({value:a.id, label:`Area: ${a.title}`}));
+        modalForm.append(
+          createInput({labelText:'Title *', id:'title', required:true}),
+          createInput({labelText:'Tags (comma separated)', id:'tags'}),
+          createInput({labelText:'Summary', id:'summary', type:'textarea', rows:4}),
+        );
+        const container = el('div');
+        const label = el('label', {for:'linkedTo'}, 'Link to Projects / Areas');
+        const select = el('select', {id:'linkedTo', name:'linkedTo', multiple:true, size:6});
+        linkedOptions.forEach(opt => {
+          select.appendChild(el('option', {value:opt.value}, opt.label));
+        });
+        container.append(label, select);
+        modalForm.appendChild(container);
+        break;
+      }
+    }
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden', 'false');
+    setTimeout(() => {
+      // Focus the first input in the form
+      modalForm.querySelector('input,textarea,select').focus();
+    }, 100);
+  }
+
+  btnModalCancel.addEventListener('click', closeModal);
+  modal.addEventListener('click', e => {
+    if (e.target === modal) closeModal();
+  });
+  window.addEventListener('keydown', e => {
+    if(e.key==='Escape' && modal.style.display==='flex') closeModal();
+  });
+
+  function closeModal() {
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  modalForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const formData = new FormData(modalForm);
+    if(!formData.get('title')?.trim()) {
+      alert('Title is required');
+      modalForm.querySelector('[name=title]').focus();
+      return;
+    }
+    if(modalContext === 'projects') {
+      const newProject = {
+        id: genId('p'),
+        title: formData.get('title').trim(),
+        description: formData.get('description').trim() || '',
+        startDate: formData.get('startDate') || '',
+        dueDate: formData.get('dueDate') || '',
+        priority: formData.get('priority') || 'Low',
+        tasks: []
+      };
+      const tasksRaw = formData.get('tasks') || '';
+      newProject.tasks = tasksRaw.split('\n').map(t => t.trim()).filter(Boolean).map(t => ({id: genId('pt'), label: t, status: 'pending'}));
+      data.projects.push(newProject);
+      renderProjects();
+      switchSection('projects');
+    } else if(modalContext === 'areas') {
+      const newArea = {
+        id: genId('a'),
+        title: formData.get('title').trim(),
+        description: formData.get('description').trim() || '',
+        tasks: [],
+        notes: formData.get('notes').trim() || '',
+        status: formData.get('status') || 'active'
+      };
+      const tasksRaw = formData.get('tasks') || '';
+      newArea.tasks = tasksRaw.split('\n').map(t => t.trim()).filter(Boolean).map(t => ({id: genId('at'), label: t, done: false}));
+      data.areas.push(newArea);
+      renderAreas();
+      switchSection('areas');
+    } else if(modalContext === 'resources') {
+      const newResource = {
+        id: genId('r'),
+        title: formData.get('title').trim(),
+        tags: [],
+        summary: formData.get('summary').trim() || '',
+        linkedTo: []
+      };
+      const tagsRaw = formData.get('tags') || '';
+      newResource.tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
+      newResource.linkedTo = formData.getAll('linkedTo').filter(Boolean);
+      data.resources.push(newResource);
+      renderResources();
+      switchSection('resources');
+    }
+    saveDataToLocalStorage(); 
+    closeModal();
+  });
+
+  /* EVENT LISTENERS FOR NEW BUTTONS */
+  document.getElementById('btnAddProject').addEventListener('click', ()=>openModalFor('projects'));
+  document.getElementById('btnAddArea').addEventListener('click', ()=>openModalFor('areas'));
+  document.getElementById('btnAddResource').addEventListener('click', ()=>openModalFor('resources'));
+
+  /* FILTER & SORT EVENTS */
+  projFilter.addEventListener('change', renderProjects);
+  projSort.addEventListener('change', renderProjects);
+
+  /* INITIAL RENDER */
+  switchSection('projects');
+  renderProjects();
+  renderAreas();
+  renderResources();
+  renderArchives();
+
+})();
+</script>
 </body>
 </html>
+
